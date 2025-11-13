@@ -1,0 +1,5 @@
+[gd_scene format=3 uid="uid://cpprf1v01p8bw"]
+
+[node name="A_Star" type="CharacterBody2D"]
+
+[node name="Sprite2D" type="Sprite2D" parent="."]

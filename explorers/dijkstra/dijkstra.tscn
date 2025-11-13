@@ -1,0 +1,3 @@
+[gd_scene format=3 uid="uid://fvw0gfylam71"]
+
+[node name="dijkstra" type="CharacterBody2D"]
