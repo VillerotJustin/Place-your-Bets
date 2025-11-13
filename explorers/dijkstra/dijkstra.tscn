@@ -1,3 +1,15 @@
-[gd_scene format=3 uid="uid://fvw0gfylam71"]
+[gd_scene load_steps=3 format=3 uid="uid://fvw0gfylam71"]
+
+[ext_resource type="Texture2D" uid="uid://yme1nnax65bj" path="res://explorers/dijkstra/dijkstra.png" id="1_p1lwx"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_rjkdi"]
+size = Vector2(8, 11)
 
 [node name="dijkstra" type="CharacterBody2D"]
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+position = Vector2(-1, -0.5)
+texture = ExtResource("1_p1lwx")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_rjkdi")

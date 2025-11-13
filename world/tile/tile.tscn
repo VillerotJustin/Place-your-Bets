@@ -1,0 +1,10 @@
+[gd_scene load_steps=3 format=3 uid="uid://djd7fp3f1imkn"]
+
+[ext_resource type="Texture2D" uid="uid://cr2hkim7umvmm" path="res://world/tile/Tile_0.png" id="1_igwdf"]
+[ext_resource type="Script" uid="uid://coe7k4mx3s6o6" path="res://world/tile/tile_loader.gd" id="2_akgi5"]
+
+[node name="Tile" type="Sprite2D"]
+texture = ExtResource("1_igwdf")
+script = ExtResource("2_akgi5")
+sprite_list = null
+tile_difficulty = null

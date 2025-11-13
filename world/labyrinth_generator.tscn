@@ -1,0 +1,11 @@
+[gd_scene load_steps=3 format=3 uid="uid://c3mkaxh23oajp"]
+
+[ext_resource type="Script" uid="uid://brr6wptfjge35" path="res://world/labyrinth_generator.gd" id="1_6582h"]
+[ext_resource type="PackedScene" uid="uid://djd7fp3f1imkn" path="res://world/tile/tile.tscn" id="2_myhb8"]
+
+[node name="Labyrinth_Generator" type="Node2D"]
+script = ExtResource("1_6582h")
+tile_scene = ExtResource("2_myhb8")
+width = null
+height = null
+gen_algorythm = null
