@@ -1,10 +1,13 @@
-[gd_scene load_steps=2 format=3 uid="uid://cpprf1v01p8bw"]
+[gd_scene load_steps=3 format=3 uid="uid://cpprf1v01p8bw"]
 
 [ext_resource type="Texture2D" uid="uid://bkw6iq18tdxax" path="res://explorers/a_star/A_Star.png" id="1_f8nsx"]
+[ext_resource type="Script" uid="uid://c146aswqvlr0v" path="res://explorers/a_star/a_star.gd" id="1_s6vt4"]
 
 [node name="A_Star" type="CharacterBody2D"]
+script = ExtResource("1_s6vt4")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
+self_modulate = Color(0.4117647, 0.40392157, 0.1764706, 1)
 texture = ExtResource("1_f8nsx")
 
 [node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="."]

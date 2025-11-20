@@ -1,0 +1,23 @@
+[gd_scene load_steps=5 format=3 uid="uid://bri0on76gifnv"]
+
+[ext_resource type="Script" uid="uid://dfngq52yy8515" path="res://world/world.gd" id="1_5hvw7"]
+[ext_resource type="PackedScene" uid="uid://c3mkaxh23oajp" path="res://world/labyrinth_generator.tscn" id="1_jeodi"]
+[ext_resource type="PackedScene" uid="uid://cpprf1v01p8bw" path="res://explorers/a_star/a_star.tscn" id="2_qcaji"]
+[ext_resource type="PackedScene" uid="uid://fvw0gfylam71" path="res://explorers/dijkstra/dijkstra.tscn" id="3_5hvw7"]
+
+[node name="World" type="Node2D"]
+script = ExtResource("1_5hvw7")
+
+[node name="Labyrinth_Generator" parent="." node_paths=PackedStringArray("explorer_1", "explorer_2") instance=ExtResource("1_jeodi")]
+explorer_1 = NodePath("../A_Star")
+explorer_2 = NodePath("../dijkstra")
+width = 70
+height = 70
+
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(1152, 648)
+zoom = Vector2(0.5, 0.5)
+
+[node name="A_Star" parent="." instance=ExtResource("2_qcaji")]
+
+[node name="dijkstra" parent="." instance=ExtResource("3_5hvw7")]

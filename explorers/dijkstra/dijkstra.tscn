@@ -1,11 +1,13 @@
-[gd_scene load_steps=3 format=3 uid="uid://fvw0gfylam71"]
+[gd_scene load_steps=4 format=3 uid="uid://fvw0gfylam71"]
 
 [ext_resource type="Texture2D" uid="uid://yme1nnax65bj" path="res://explorers/dijkstra/dijkstra.png" id="1_p1lwx"]
+[ext_resource type="Script" uid="uid://cq5c4v15adx10" path="res://explorers/dijkstra/dijkstra.gd" id="1_rjkdi"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_rjkdi"]
 size = Vector2(8, 11)
 
 [node name="dijkstra" type="CharacterBody2D"]
+script = ExtResource("1_rjkdi")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
 position = Vector2(-1, -0.5)
