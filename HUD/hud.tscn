@@ -1,0 +1,324 @@
+[gd_scene load_steps=6 format=3 uid="uid://dm5c4rfnuf1fg"]
+
+[ext_resource type="Script" uid="uid://ope0x7gyx4bk" path="res://HUD/hud.gd" id="1_h61sl"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_h61sl"]
+content_margin_left = 0.0
+content_margin_top = 0.0
+content_margin_right = 0.0
+content_margin_bottom = 0.0
+bg_color = Color(0.101960786, 0.101960786, 0.101960786, 1)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+corner_detail = 5
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_mi5n8"]
+content_margin_left = 0.0
+content_margin_top = 0.0
+content_margin_right = 0.0
+content_margin_bottom = 0.0
+bg_color = Color(0.101960786, 0.101960786, 0.101960786, 0)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+corner_detail = 5
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_yu8mg"]
+content_margin_left = 0.0
+content_margin_top = 0.0
+content_margin_right = 0.0
+content_margin_bottom = 0.0
+bg_color = Color(0.19607843, 0.101960786, 0.101960786, 0.79607844)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+corner_detail = 5
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_jvmdh"]
+content_margin_left = 0.0
+content_margin_top = 0.0
+content_margin_right = 0.0
+content_margin_bottom = 0.0
+bg_color = Color(0, 0, 0, 0)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+corner_detail = 5
+
+[node name="HUD" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_h61sl")
+
+[node name="Panel" type="Panel" parent="."]
+z_index = -100
+custom_minimum_size = Vector2(1920, 1080)
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_h61sl")
+
+[node name="Container" type="PanelContainer" parent="Panel"]
+z_index = 200
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_mi5n8")
+
+[node name="Message" type="Control" parent="Panel/Container"]
+visible = false
+layout_direction = 2
+layout_mode = 2
+
+[node name="Panel" type="Panel" parent="Panel/Container/Message"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.24200001
+anchor_top = 0.45400003
+anchor_right = 0.76600003
+anchor_bottom = 0.549
+offset_left = -6.6400146
+offset_top = 1.6799622
+offset_right = 3.2799072
+offset_bottom = 3.079956
+theme_override_styles/panel = SubResource("StyleBoxFlat_yu8mg")
+
+[node name="MessageLabel" type="Label" parent="Panel/Container/Message/Panel"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -445.0
+offset_top = -34.5
+offset_right = 445.0
+offset_bottom = 34.5
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_font_sizes/font_size = 50
+text = "Lorem Ipsum calis, nito es luna pyris."
+horizontal_alignment = 1
+text_direction = 1
+
+[node name="Timer" type="Timer" parent="Panel/Container/Message/Panel"]
+wait_time = 2.0
+
+[node name="ScoreRows" type="HBoxContainer" parent="Panel/Container"]
+layout_mode = 2
+size_flags_vertical = 8
+
+[node name="AI" type="VBoxContainer" parent="Panel/Container/ScoreRows"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Section Name" type="Label" parent="Panel/Container/ScoreRows/AI"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 50
+text = "AI"
+horizontal_alignment = 1
+text_direction = 1
+
+[node name="Content" type="Label" parent="Panel/Container/ScoreRows/AI"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 30
+text = "A Star"
+horizontal_alignment = 1
+text_direction = 1
+
+[node name="Content2" type="Label" parent="Panel/Container/ScoreRows/AI"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 30
+text = "Dijkstra"
+horizontal_alignment = 1
+text_direction = 1
+
+[node name="BUILD" type="VBoxContainer" parent="Panel/Container/ScoreRows"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Section Name" type="Label" parent="Panel/Container/ScoreRows/BUILD"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 50
+text = "Build Times"
+horizontal_alignment = 1
+text_direction = 1
+
+[node name="Content" type="Label" parent="Panel/Container/ScoreRows/BUILD"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 30
+text = "0"
+horizontal_alignment = 1
+text_direction = 1
+
+[node name="Content2" type="Label" parent="Panel/Container/ScoreRows/BUILD"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 30
+text = "0"
+horizontal_alignment = 1
+text_direction = 1
+
+[node name="WALK" type="VBoxContainer" parent="Panel/Container/ScoreRows"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Section Name" type="Label" parent="Panel/Container/ScoreRows/WALK"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 50
+text = "Walk Times"
+horizontal_alignment = 1
+text_direction = 1
+
+[node name="Content" type="Label" parent="Panel/Container/ScoreRows/WALK"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 30
+text = "0"
+horizontal_alignment = 1
+text_direction = 1
+
+[node name="Content2" type="Label" parent="Panel/Container/ScoreRows/WALK"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 30
+text = "0"
+horizontal_alignment = 1
+text_direction = 1
+
+[node name="POINT" type="VBoxContainer" parent="Panel/Container/ScoreRows"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Section Name" type="Label" parent="Panel/Container/ScoreRows/POINT"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 50
+text = "Points"
+horizontal_alignment = 1
+text_direction = 1
+
+[node name="Content" type="Label" parent="Panel/Container/ScoreRows/POINT"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 30
+text = "0"
+horizontal_alignment = 1
+text_direction = 1
+
+[node name="Content2" type="Label" parent="Panel/Container/ScoreRows/POINT"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 30
+text = "0"
+horizontal_alignment = 1
+text_direction = 1
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Panel/Container"]
+layout_mode = 2
+size_flags_horizontal = 8
+
+[node name="HelpControl" type="PanelContainer" parent="Panel/Container/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Panel/Container/VBoxContainer/HelpControl"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Panel/Container/VBoxContainer/HelpControl/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 30
+text = "Controls"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Content" type="Label" parent="Panel/Container/VBoxContainer/HelpControl/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_font_sizes/font_size = 20
+text = "R to reload
+SPACE to start pathfinding
+ENTER to start pathwalking
+GREEN = A*
+RED = Dijkstra"
+vertical_alignment = 1
+
+[node name="Money" type="PanelContainer" parent="Panel/Container/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Panel/Container/VBoxContainer/Money"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Panel/Container/VBoxContainer/Money/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 30
+text = "Money"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Money" type="Label" parent="Panel/Container/VBoxContainer/Money/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_font_sizes/font_size = 20
+text = "Current: TODO"
+vertical_alignment = 1
+
+[node name="Bet" type="Label" parent="Panel/Container/VBoxContainer/Money/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_font_sizes/font_size = 20
+text = "BET: TODO"
+vertical_alignment = 1
+
+[node name="LastWin" type="Label" parent="Panel/Container/VBoxContainer/Money/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_font_sizes/font_size = 20
+text = "Last Win: TODO"
+vertical_alignment = 1
+
+[node name="PanelContainer3" type="PanelContainer" parent="Panel/Container/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Panel/Container/VBoxContainer/PanelContainer3"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Panel/Container/VBoxContainer/PanelContainer3/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 2
+theme_override_font_sizes/font_size = 30
+text = "Betting"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="AStarBet" type="Button" parent="Panel/Container/VBoxContainer/PanelContainer3/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_font_sizes/font_size = 25
+text = "Bet on A Star"
+
+[node name="DijkstraBeT" type="Button" parent="Panel/Container/VBoxContainer/PanelContainer3/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_font_sizes/font_size = 25
+text = "Bet on Dijkstra"
+
+[node name="Empty" type="PanelContainer" parent="Panel/Container/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_jvmdh")
+
+[connection signal="timeout" from="Panel/Container/Message/Panel/Timer" to="." method="_on_timer_timeout"]
+[connection signal="pressed" from="Panel/Container/VBoxContainer/PanelContainer3/VBoxContainer/AStarBet" to="." method="_on_a_star_bet_pressed"]
+[connection signal="pressed" from="Panel/Container/VBoxContainer/PanelContainer3/VBoxContainer/DijkstraBeT" to="." method="_on_dijkstra_be_t_pressed"]

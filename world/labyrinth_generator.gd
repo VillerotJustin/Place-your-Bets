@@ -42,6 +42,7 @@ func _ready() -> void:
 
 func regen_labs() -> void:
 	print("Regenerating labyrinths...")
+	UX_Manager.reset()
 	
 	# Reset tile IDs to force new start/end positions
 	start_tile_id = -1
@@ -415,6 +416,21 @@ func build_graph() -> void:
 	# Build detailed graph (one node per tile)
 	build_detailed_graph()
 	
+	# Debug: Check connectivity of start and end nodes
+	var start_id = get_start_tile_id()
+	var end_id = get_end_tile_id()
+	if start_id >= 0 and start_id < graph_labyrinth.size():
+		print("Start node ", start_id, " has ", graph_labyrinth[start_id].neighbours.size(), " neighbors")
+	if end_id >= 0 and end_id < graph_labyrinth.size():
+		print("End node ", end_id, " has ", graph_labyrinth[end_id].neighbours.size(), " neighbors")
+	
+	# Count connected nodes
+	var connected_count = 0
+	for node in graph_labyrinth:
+		if node.neighbours.size() > 0:
+			connected_count += 1
+	print("Connected nodes in detailed graph: ", connected_count, "/", graph_labyrinth.size())
+	
 	# Build simplified corridor graph
 	build_corridor_graph()
 	
@@ -435,14 +451,15 @@ func build_detailed_graph() -> void:
 		for x in range(width):
 			var current_id = xy_to_id(x, y)
 			
-			# Only process passage tiles
-			if tile_labyrinth[y][x] == 0:
+			# Only process passage tiles (not walls with difficulty 10)
+			if tile_labyrinth[y][x] != 10:
 				for d in dirs:
 					var nx = x + d.x
 					var ny = y + d.y
 					
+					# Check if neighbor is within bounds and is also a passage (not wall)
 					if (nx >= 0 and nx < width and ny >= 0 and ny < height and 
-						tile_labyrinth[ny][nx] == 0):  # Adjacent passage
+						tile_labyrinth[ny][nx] != 10):  # Adjacent passage (any difficulty except wall)
 						
 						var neighbor_id = xy_to_id(nx, ny)
 						var difficulty = tile_labyrinth[ny][nx]
@@ -451,56 +468,55 @@ func build_detailed_graph() -> void:
 						graph_labyrinth[current_id].neighbours_difficulty.append(difficulty)
 
 func build_corridor_graph() -> void:
-	# Find junction points (passages with more than 2 neighbors) and dead ends
-	var junctions: Array[int] = []
-	var dead_ends: Array[int] = []
-	
-	for y in range(height):
-		for x in range(width):
-			if tile_labyrinth[y][x] == 0:  # Passage tile
-				var tile_id = xy_to_id(x, y)
-				var neighbor_count = graph_labyrinth[tile_id].neighbours.size()
-				
-				if neighbor_count == 1:
-					dead_ends.append(tile_id)
-				elif neighbor_count > 2:
-					junctions.append(tile_id)
-	
-	# Include start and end tiles as key points
+	# Build simplified graph with one node per corridor/junction
+
+	# Identify key points (junctions and dead-ends) - only from passage tiles
 	var key_points: Array[int] = []
-	key_points.append_array(junctions)
-	key_points.append_array(dead_ends)
-	
+
+	for i in range(number_of_cells):
+		var pos = id_to_xy(i)
+		# Only consider passage tiles (not walls)
+		if tile_labyrinth[pos.y][pos.x] != 10:
+			var node = graph_labyrinth[i]
+			var num_neighbors = node.neighbours.size()
+			
+			# Key points: junctions (3+ neighbors) and dead-ends (1 neighbor)
+			if num_neighbors == 1 or num_neighbors >= 3:
+				key_points.append(i)
+
+	# Check if start and end tiles are key points, if not add them
 	var start_id = get_start_tile_id()
 	var end_id = get_end_tile_id()
-	if start_id != -1 and not key_points.has(start_id):
+	if not key_points.has(start_id):
 		key_points.append(start_id)
-	if end_id != -1 and not key_points.has(end_id):
+	if not key_points.has(end_id):
 		key_points.append(end_id)
 	
-	# Create nodes for key points
-	var point_to_node: Dictionary = {}
-	for i in range(key_points.size()):
-		var node = Lab_Node.new()
-		node.id = key_points[i]
-		corridor_graph.append(node)
-		point_to_node[key_points[i]] = i
+	# Create a mapping from tile ID to corridor graph index
+	var id_to_corridor_index: Dictionary = {}
+	for j in range(key_points.size()):
+		id_to_corridor_index[key_points[j]] = j
 	
-	# Find corridors between key points using pathfinding
-	for i in range(key_points.size()):
-		var from_point = key_points[i]
-		var connected_points = find_direct_corridors(from_point, key_points)
+	# Create corridor graph nodes
+	corridor_graph.resize(key_points.size())
+	for j in range(key_points.size()):
+		corridor_graph[j] = Lab_Node.new()
+		corridor_graph[j].id = key_points[j]
+
+		# Find direct corridors between key points
+		var connections = find_direct_corridors(key_points[j], key_points)
+		for conn in connections:
+			var target_id = conn["point"]
+			var difficulty = conn["difficulty"]
+			
+			# Convert target tile ID to corridor graph index
+			if id_to_corridor_index.has(target_id):
+				var target_corridor_index = id_to_corridor_index[target_id]
+				corridor_graph[j].neighbours.append(target_corridor_index)
+				corridor_graph[j].neighbours_difficulty.append(difficulty)
+	
 		
-		for connection in connected_points:
-			var to_point = connection["point"]
-			var total_difficulty = connection["difficulty"]
-			
-			var from_node_idx = point_to_node[from_point]
-			
-			# Add bidirectional connection if not already present
-			if not corridor_graph[from_node_idx].neighbours.has(to_point):
-				corridor_graph[from_node_idx].neighbours.append(to_point)
-				corridor_graph[from_node_idx].neighbours_difficulty.append(total_difficulty)
+
 
 func find_direct_corridors(from_point: int, key_points: Array[int]) -> Array:
 	# Use BFS to find direct corridors from a key point to other key points

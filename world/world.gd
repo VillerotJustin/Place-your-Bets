@@ -58,7 +58,7 @@ func _input(event: InputEvent) -> void:
 					# Start timing for path building
 					_start_build_timing()
 					a_star_explorer.build_path(labyrinth_generator.tile_labyrinth)
-					_start_build_timing()
+					_start_build_timing(false)
 					dijkstra_explorer.build_path(labyrinth_generator.corridor_graph)
 			
 			KEY_ENTER:
@@ -67,7 +67,7 @@ func _input(event: InputEvent) -> void:
 					# Start timing for path walking
 					_start_walk_timing()
 					a_star_explorer.walk_path()
-					_start_build_timing()
+					_start_walk_timing(false)
 					dijkstra_explorer.walk_path()
 
 func _physics_process(_delta: float) -> void:
@@ -78,20 +78,24 @@ func _physics_process(_delta: float) -> void:
 # TIMING FUNCTIONS
 # ====================================================================
 
-func _start_build_timing() -> void:
+func _start_build_timing(astar: bool = true) -> void:
 	# Start timing for both algorithms (using milliseconds for precision)
-	a_star_build_start_time = Time.get_ticks_msec()
-	dijkstra_build_start_time = Time.get_ticks_msec()
-	timing_a_star_build = true
-	timing_dijkstra_build = true
+	if astar:
+		a_star_build_start_time = Time.get_ticks_msec()
+		timing_a_star_build = true
+	else:
+		dijkstra_build_start_time = Time.get_ticks_msec()
+		timing_dijkstra_build = true
 	print("Started timing path building...")
 
-func _start_walk_timing() -> void:
+func _start_walk_timing(astar: bool = true) -> void:
 	# Start timing for both algorithms (using milliseconds for precision)
-	a_star_walk_start_time = Time.get_ticks_msec()
-	dijkstra_walk_start_time = Time.get_ticks_msec()
-	timing_a_star_walk = true
-	timing_dijkstra_walk = true
+	if astar:
+		a_star_walk_start_time = Time.get_ticks_msec()
+		timing_a_star_walk = true
+	else:
+		dijkstra_walk_start_time = Time.get_ticks_msec()		
+		timing_dijkstra_walk = true
 	print("Started timing path walking...")
 
 # ====================================================================
@@ -104,6 +108,7 @@ func _on_astar_path_built() -> void:
 		a_star_process_time = (end_time - a_star_build_start_time) / 1000.0  # Convert to seconds
 		timing_a_star_build = false
 		print("A* path building completed in: ", a_star_process_time, " seconds")
+		UX_Manager.build_time_astar = a_star_process_time
 
 func _on_astar_walk_finished() -> void:
 	if timing_a_star_walk:
@@ -111,6 +116,7 @@ func _on_astar_walk_finished() -> void:
 		a_star_walk_time = (end_time - a_star_walk_start_time) / 1000.0  # Convert to seconds
 		timing_a_star_walk = false
 		print("A* walk completed in: ", a_star_walk_time, " seconds")
+		UX_Manager.walk_time_astar = a_star_walk_time
 
 func _on_dijkstra_path_built() -> void:
 	if timing_dijkstra_build:
@@ -118,6 +124,7 @@ func _on_dijkstra_path_built() -> void:
 		dijkstra_process_time = (end_time - dijkstra_build_start_time) / 1000.0  # Convert to seconds
 		timing_dijkstra_build = false
 		print("Dijkstra path building completed in: ", dijkstra_process_time, " seconds")
+		UX_Manager.build_time_dijkstra = dijkstra_process_time
 
 func _on_dijkstra_walk_finished() -> void:
 	if timing_dijkstra_walk:
@@ -125,6 +132,7 @@ func _on_dijkstra_walk_finished() -> void:
 		dijkstra_walk_time = (end_time - dijkstra_walk_start_time) / 1000.0  # Convert to seconds
 		timing_dijkstra_walk = false
 		print("Dijkstra walk completed in: ", dijkstra_walk_time, " seconds")
+		UX_Manager.walk_time_dijkstra = dijkstra_walk_time
 		
 	# Check if both algorithms have finished and display comparison
 	if not timing_a_star_walk and not timing_dijkstra_walk:

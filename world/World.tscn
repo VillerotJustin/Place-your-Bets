@@ -1,9 +1,10 @@
-[gd_scene load_steps=5 format=3 uid="uid://bri0on76gifnv"]
+[gd_scene load_steps=6 format=3 uid="uid://bri0on76gifnv"]
 
 [ext_resource type="Script" uid="uid://dfngq52yy8515" path="res://world/world.gd" id="1_5hvw7"]
 [ext_resource type="PackedScene" uid="uid://c3mkaxh23oajp" path="res://world/labyrinth_generator.tscn" id="1_jeodi"]
 [ext_resource type="PackedScene" uid="uid://cpprf1v01p8bw" path="res://explorers/a_star/a_star.tscn" id="2_qcaji"]
 [ext_resource type="PackedScene" uid="uid://fvw0gfylam71" path="res://explorers/dijkstra/dijkstra.tscn" id="3_5hvw7"]
+[ext_resource type="PackedScene" uid="uid://dm5c4rfnuf1fg" path="res://HUD/hud.tscn" id="5_ahhnx"]
 
 [node name="World" type="Node2D"]
 script = ExtResource("1_5hvw7")
@@ -11,13 +12,23 @@ script = ExtResource("1_5hvw7")
 [node name="Labyrinth_Generator" parent="." node_paths=PackedStringArray("explorer_1", "explorer_2") instance=ExtResource("1_jeodi")]
 explorer_1 = NodePath("../A_Star")
 explorer_2 = NodePath("../dijkstra")
-width = 70
-height = 70
+width = 50
+height = 50
 
 [node name="Camera2D" type="Camera2D" parent="."]
-position = Vector2(1152, 648)
-zoom = Vector2(0.5, 0.5)
+position = Vector2(960, 540)
 
 [node name="A_Star" parent="." instance=ExtResource("2_qcaji")]
 
 [node name="dijkstra" parent="." instance=ExtResource("3_5hvw7")]
+
+[node name="HUD" parent="." instance=ExtResource("5_ahhnx")]
+clip_contents = true
+custom_minimum_size = Vector2(1920, 1080)
+anchors_preset = 0
+anchor_right = 0.0
+anchor_bottom = 0.0
+grow_horizontal = 1
+grow_vertical = 1
+size_flags_horizontal = 4
+size_flags_vertical = 4

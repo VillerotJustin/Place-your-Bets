@@ -15,6 +15,15 @@ run/main_scene="uid://bri0on76gifnv"
 config/features=PackedStringArray("4.5", "Forward Plus")
 config/icon="res://icon.svg"
 
+[autoload]
+
+UX_Manager="*res://HUD/UX_Manager.gd"
+
+[display]
+
+window/size/viewport_width=1920
+window/size/viewport_height=1080
+
 [rendering]
 
 textures/canvas_textures/default_texture_filter=0

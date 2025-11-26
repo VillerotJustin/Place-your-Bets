@@ -17,9 +17,9 @@ var current_target_index: int = 0
 
 # Mouvement var
 var is_moving: bool = false
-var default_speed: float = 80.0  # pixels per second (slightly slower than A*)
-var current_speed: float = 80.0 # Change with terrain difficulty
-var movement_threshold: float = 5.0  # How close to get to target before moving to next
+var default_speed: float = 100.0 
+var current_speed: float = 100.0 
+var movement_threshold: float = 5.0
 
 # Pathfinding state
 var has_path: bool = false
@@ -38,7 +38,7 @@ func set_start_and_end(start_pos: Vector2, end_pos: Vector2, ) -> void:
 	is_finished = false
 	current_target_index = 0
 
-func build_path(_graph:Array[Lab_Node]) -> void:
+func build_path(graph: Array[Lab_Node]) -> void:
 	print("Dijkstra: Building path from ", start, " to ", end)
 	
 	# Clear any existing path
@@ -56,7 +56,12 @@ func build_path(_graph:Array[Lab_Node]) -> void:
 		path_built.emit()
 		return
 	
-	# Convert world positions to grid coordinates (adjust for right labyrinth)
+	if graph.size() == 0:
+		print("Dijkstra: Empty graph provided")
+		path_built.emit()
+		return
+	
+	# Convert world positions to tile IDs (adjust for right labyrinth)
 	var start_world_adjusted = start
 	var end_world_adjusted = end
 	var tile_size = 16
@@ -66,91 +71,102 @@ func build_path(_graph:Array[Lab_Node]) -> void:
 	var start_grid = Vector2i(int(start_world_adjusted.x / tile_size), int(start_world_adjusted.y / tile_size))
 	var end_grid = Vector2i(int(end_world_adjusted.x / tile_size), int(end_world_adjusted.y / tile_size))
 	
-	# Validate start and end positions
-	if not _is_valid_position(start_grid, lab_gen) or not _is_valid_position(end_grid, lab_gen):
-		print("Dijkstra: Invalid start or end position")
+	var start_id = lab_gen.xy_to_id(start_grid.x, start_grid.y)
+	var end_id = lab_gen.xy_to_id(end_grid.x, end_grid.y)
+	
+	print("Dijkstra: Start grid: ", start_grid, " ID: ", start_id)
+	print("Dijkstra: End grid: ", end_grid, " ID: ", end_id)
+	print("Dijkstra: Graph size: ", graph.size())
+	
+	# Find start and end nodes in the graph (try exact match first)
+	var start_node_idx = -1
+	var end_node_idx = -1
+	
+	for i in range(graph.size()):
+		if graph[i].id == start_id:
+			start_node_idx = i
+		if graph[i].id == end_id:
+			end_node_idx = i
+	
+	# If exact match not found, find nearest corridor nodes
+	if start_node_idx == -1:
+		start_node_idx = _find_nearest_corridor_node(start_grid, graph, lab_gen)
+		print("Dijkstra: Using nearest start node: ", start_node_idx)
+	
+	if end_node_idx == -1:
+		end_node_idx = _find_nearest_corridor_node(end_grid, graph, lab_gen)
+		print("Dijkstra: Using nearest end node: ", end_node_idx)
+	
+	if start_node_idx == -1 or end_node_idx == -1:
+		print("Dijkstra: Could not find suitable start or end nodes in corridor graph")
 		path_built.emit()
 		return
 	
-	# Dijkstra's algorithm implementation
-	var distances: Dictionary = {}
-	var previous: Dictionary = {}
-	var unvisited: Array[String] = []
+	# Dijkstra's algorithm on the corridor graph
+	var distances: Array[float] = []
+	var previous: Array[int] = []
+	var visited: Array[bool] = []
 	
-	# Initialize all nodes
-	for y in range(lab_gen.height):
-		for x in range(lab_gen.width):
-			if lab_gen.tile_labyrinth[y][x] < 10:  # Not a wall
-				var key = _grid_to_key(Vector2i(x, y))
-				distances[key] = INF
-				unvisited.append(key)
+	# Initialize arrays
+	for i in range(graph.size()):
+		distances.append(INF)
+		previous.append(-1)
+		visited.append(false)
 	
-	# Set start distance to 0
-	var start_key = _grid_to_key(start_grid)
-	var end_key = _grid_to_key(end_grid)
-	distances[start_key] = 0.0
+	distances[start_node_idx] = 0.0
 	
-	var directions = [Vector2i(0, 1), Vector2i(1, 0), Vector2i(0, -1), Vector2i(-1, 0)]
-	
-	while unvisited.size() > 0:
+	# Main Dijkstra loop
+	for _iteration in range(graph.size()):
 		# Find unvisited node with minimum distance
-		var current_key = ""
+		var current_idx = -1
 		var min_distance = INF
-		for key in unvisited:
-			if distances[key] < min_distance:
-				min_distance = distances[key]
-				current_key = key
 		
-		if current_key == "" or min_distance == INF:
+		for i in range(graph.size()):
+			if not visited[i] and distances[i] < min_distance:
+				min_distance = distances[i]
+				current_idx = i
+		
+		if current_idx == -1 or min_distance == INF:
 			break  # No more reachable nodes
 		
-		# Remove current from unvisited
-		unvisited.erase(current_key)
+		visited[current_idx] = true
 		
 		# Check if we reached the goal
-		if current_key == end_key:
-			# Reconstruct path
-			_reconstruct_dijkstra_path(previous, current_key, start_key, lab_gen)
-			has_path = true
-			print("Dijkstra: Path found with ", path.size(), " waypoints")
-			path_built.emit()
-			return
+		if current_idx == end_node_idx:
+			break
 		
-		# Get current position
-		var coords = current_key.split(",")
-		var current_pos = Vector2i(int(coords[0]), int(coords[1]))
+		# Update distances to neighbors
+		var current_node = graph[current_idx]
+		# print("Dijkstra: Processing node ", current_idx, " with ID ", current_node.id, " (", current_node.neighbours.size(), " neighbors)")
 		
-		# Check all neighbors
-		for dir in directions:
-			var neighbor_pos = current_pos + dir
-			var neighbor_key = _grid_to_key(neighbor_pos)
+		for i in range(current_node.neighbours.size()):
+			var neighbor_idx = current_node.neighbours[i]  # This is already a graph index, not a tile ID
+			var edge_cost = current_node.neighbours_difficulty[i]
 			
-			# Skip if not in unvisited or invalid position
-			if not unvisited.has(neighbor_key) or not _is_valid_position(neighbor_pos, lab_gen):
-				continue
-			
-			# Skip walls
-			var tile_difficulty = lab_gen.tile_labyrinth[neighbor_pos.y][neighbor_pos.x]
-			if tile_difficulty >= 10:
-				continue
-			
-			# Calculate movement cost
-			var movement_cost = 1.0
-			if tile_difficulty == 2:
-				movement_cost = 1.5  # Medium difficulty
-			elif tile_difficulty == 5:
-				movement_cost = 3.0  # Hard difficulty
-			
-			var alt_distance = distances[current_key] + movement_cost
-			
-			# Update if we found a better path
-			if alt_distance < distances[neighbor_key]:
-				distances[neighbor_key] = alt_distance
-				previous[neighbor_key] = current_key
+			# Validate neighbor index
+			if neighbor_idx >= 0 and neighbor_idx < graph.size() and not visited[neighbor_idx]:
+				var alt_distance = distances[current_idx] + edge_cost
+				if alt_distance < distances[neighbor_idx]:
+					distances[neighbor_idx] = alt_distance
+					previous[neighbor_idx] = current_idx
+					# print("Dijkstra: Updated distance to node ", neighbor_idx, " = ", alt_distance)
 	
-	# No path found
-	print("Dijkstra: No path found")
-	path_built.emit()
+	# Reconstruct path if found
+	print("Dijkstra: Final distance to end: ", distances[end_node_idx])
+	if distances[end_node_idx] != INF:
+		_reconstruct_corridor_path(graph, previous, end_node_idx, start_node_idx, lab_gen)
+		has_path = true
+		print("Dijkstra: Path found with ", path.size(), " waypoints")
+		path_built.emit()
+	else:
+		print("Dijkstra: No path found - distance is infinite")
+		# Debug: show which nodes were reachable
+		var reachable_count = 0
+		for i in range(distances.size()):
+			if distances[i] != INF:
+				reachable_count += 1
+		print("Dijkstra: ", reachable_count, " out of ", graph.size(), " nodes were reachable")
+		path_built.emit()
 
 func walk_path() -> void:
 	if has_path:
@@ -253,8 +269,13 @@ func _is_valid_position(pos: Vector2i, lab_gen: Labyrinth_Generator) -> bool:
 	return (pos.x >= 0 and pos.x < lab_gen.width and 
 			pos.y >= 0 and pos.y < lab_gen.height)
 
-func _grid_to_key(pos: Vector2i) -> String:
-	return str(pos.x) + "," + str(pos.y)
+func _grid_to_key(pos) -> String:
+	if pos is Vector2i:
+		return str(pos.x) + "," + str(pos.y)
+	elif pos is Vector2:
+		return str(int(pos.x)) + "," + str(int(pos.y))
+	else:
+		return "0,0"
 
 func _reconstruct_dijkstra_path(previous: Dictionary, current_key: String, start_key: String, lab_gen: Labyrinth_Generator) -> void:
 	var path_keys: Array[String] = []
@@ -283,3 +304,126 @@ func _reconstruct_dijkstra_path(previous: Dictionary, current_key: String, start
 			grid_pos.y * tile_size + tile_size * 0.5
 		)
 		path.append(world_pos)
+
+func _reconstruct_corridor_path(graph: Array[Lab_Node], previous: Array[int], end_idx: int, start_idx: int, lab_gen: Labyrinth_Generator) -> void:
+	var node_path: Array[int] = []
+	var current_idx = end_idx
+	
+	# Trace back from goal to start to get corridor nodes
+	while current_idx != start_idx:
+		node_path.append(current_idx)
+		if previous[current_idx] == -1:
+			print("Dijkstra: Error in corridor path reconstruction")
+			return
+		current_idx = previous[current_idx]
+	
+	node_path.append(start_idx)
+	node_path.reverse()
+	
+	# Now expand the path to include all cells along corridors
+	path.clear()
+	var tile_size = 16
+	
+	for i in range(node_path.size()):
+		var current_node_idx = node_path[i]
+		var current_node = graph[current_node_idx]
+		var current_tile_id = current_node.id
+		
+		# Always add the current corridor node
+		var current_grid_pos = lab_gen.id_to_xy(current_tile_id)
+		var current_world_pos = Vector2(
+			current_grid_pos.x * tile_size + tile_size * 0.5 + (lab_gen.width + 2) * tile_size,
+			current_grid_pos.y * tile_size + tile_size * 0.5
+		)
+		path.append(current_world_pos)
+		
+		# If this is not the last node, find and add all intermediate cells
+		if i < node_path.size() - 1:
+			var next_node_idx = node_path[i + 1]
+			var next_node = graph[next_node_idx]
+			var next_tile_id = next_node.id
+			
+			# Find the corridor path between these two nodes using BFS
+			var corridor_cells = _find_corridor_between_nodes(current_tile_id, next_tile_id, lab_gen)
+			
+			# Add intermediate cells (skip first and last as they're the corridor nodes themselves)
+			for j in range(1, corridor_cells.size() - 1):
+				var cell_grid_pos = lab_gen.id_to_xy(corridor_cells[j])
+				var cell_world_pos = Vector2(
+					cell_grid_pos.x * tile_size + tile_size * 0.5 + (lab_gen.width + 2) * tile_size,
+					cell_grid_pos.y * tile_size + tile_size * 0.5
+				)
+				path.append(cell_world_pos)
+
+func _find_nearest_corridor_node(target_pos: Vector2i, graph: Array[Lab_Node], lab_gen: Labyrinth_Generator) -> int:
+	var nearest_idx = -1
+	var min_distance = INF
+	
+	for i in range(graph.size()):
+		var node = graph[i]
+		var node_pos = lab_gen.id_to_xy(node.id)
+		var distance = target_pos.distance_squared_to(node_pos)
+		
+		if distance < min_distance:
+			min_distance = distance
+			nearest_idx = i
+	
+	if nearest_idx != -1:
+		var nearest_node = graph[nearest_idx]
+		var nearest_pos = lab_gen.id_to_xy(nearest_node.id)
+		print("Dijkstra: Found nearest node at ", nearest_pos, " (distance: ", sqrt(min_distance), ")")
+	
+	return nearest_idx
+
+func _find_corridor_between_nodes(start_tile_id: int, end_tile_id: int, lab_gen: Labyrinth_Generator) -> Array[int]:
+	# Use BFS to find the shortest path between two corridor nodes
+	var visited: Dictionary = {}
+	var start_path: Array[int] = [start_tile_id]
+	var queue: Array = [{"id": start_tile_id, "path": start_path}]
+	var dirs = [Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1)]
+	
+	visited[start_tile_id] = true
+	
+	while queue.size() > 0:
+		var current = queue.pop_front()
+		var current_id = current["id"]
+		var current_path = current["path"]
+		
+		# Check if we reached the destination
+		if current_id == end_tile_id:
+			var typed_path: Array[int] = []
+			for cell_id in current_path:
+				typed_path.append(cell_id)
+			return typed_path
+		
+		# Get current position
+		var current_pos = lab_gen.id_to_xy(current_id)
+		
+		# Explore neighbors
+		for d in dirs:
+			var neighbor_x = current_pos.x + d.x
+			var neighbor_y = current_pos.y + d.y
+			
+			# Check bounds
+			if (neighbor_x >= 0 and neighbor_x < lab_gen.width and 
+				neighbor_y >= 0 and neighbor_y < lab_gen.height):
+				
+				var neighbor_id = lab_gen.xy_to_id(neighbor_x, neighbor_y)
+				
+				# Check if neighbor is a passage (not a wall) and not visited
+				if (lab_gen.tile_labyrinth[neighbor_y][neighbor_x] != 10 and 
+					not visited.has(neighbor_id)):
+					
+					visited[neighbor_id] = true
+					var new_path: Array[int] = current_path.duplicate()
+					new_path.append(neighbor_id)
+					
+					queue.append({
+						"id": neighbor_id,
+						"path": new_path
+					})
+	
+	# If no path found, return just the start and end points
+	print("Dijkstra: Warning - No corridor path found between nodes ", start_tile_id, " and ", end_tile_id)
+	var fallback_path: Array[int] = [start_tile_id, end_tile_id]
+	return fallback_path
