@@ -126,11 +126,12 @@ func build_path(_labyrinth: Array) -> void:
 				continue
 			
 			# Calculate tentative g_score (include tile difficulty as movement cost)
+			# Astar has the same difficulty for every harder tiles
 			var movement_cost = 1.0
 			if tile_difficulty == 2:
-				movement_cost = 1.5  # Medium difficulty
+				movement_cost = 2.0  # Medium difficulty
 			elif tile_difficulty == 5:
-				movement_cost = 3.0  # Hard difficulty
+				movement_cost = 2.0  # Hard difficulty
 			# tile_difficulty 0 (passages) use base cost of 1.0
 			var tentative_g = g_score[current_key] + movement_cost
 			
@@ -233,14 +234,14 @@ func _update_speed_for_current_tile() -> void:
 	# Get tile difficulty
 	var tile_difficulty = lab_gen.tile_labyrinth[grid_pos.y][grid_pos.x]
 	
-	# Adjust speed based on difficulty
-	match tile_difficulty:
+	# Adjust speed based on difficulty astar has changed mouvment
+	match tile_difficulty: # It is easier to move on hard but harder on medium
 		0:  # Easy passage
 			current_speed = default_speed
 		2:  # Medium difficulty
-			current_speed = default_speed * 0.7
+			current_speed = default_speed * 0.6
 		5:  # Hard difficulty
-			current_speed = default_speed * 0.4
+			current_speed = default_speed * 0.6
 		10: # Wall (shouldn't happen but just in case)
 			current_speed = default_speed * 0.1
 		_:  # Default for any other value

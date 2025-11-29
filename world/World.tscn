@@ -14,6 +14,7 @@ explorer_1 = NodePath("../A_Star")
 explorer_2 = NodePath("../dijkstra")
 width = 50
 height = 50
+difficulty_pattern = "Clustered Areas"
 
 [node name="Camera2D" type="Camera2D" parent="."]
 position = Vector2(960, 540)

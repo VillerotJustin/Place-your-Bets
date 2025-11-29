@@ -43,15 +43,7 @@ func update_points_labels(astar: int, dijkstra: int):
 	points_label_astar.text = str(astar)
 	points_label_dijkstra.text = str(dijkstra)
 	
-	if astar == dijkstra and dijkstra == 0:
-		return
-	
-	if astar > dijkstra:
-		show_message("A* Won")
-	elif astar < dijkstra:
-		show_message("Dijkstra Won")
-	else:
-		show_message("Equality")
+	# Winner messages are now handled by UX_Manager when race is complete
 
 func update_money(money: int, bet: int, last_win: int, side: bool) -> void:
 	money_label.text = "Current: " + str(money)

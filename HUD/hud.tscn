@@ -305,12 +305,14 @@ vertical_alignment = 1
 [node name="AStarBet" type="Button" parent="Panel/Container/VBoxContainer/PanelContainer3/VBoxContainer"]
 layout_mode = 2
 size_flags_vertical = 3
+focus_mode = 0
 theme_override_font_sizes/font_size = 25
 text = "Bet on A Star"
 
 [node name="DijkstraBeT" type="Button" parent="Panel/Container/VBoxContainer/PanelContainer3/VBoxContainer"]
 layout_mode = 2
 size_flags_vertical = 3
+focus_mode = 0
 theme_override_font_sizes/font_size = 25
 text = "Bet on Dijkstra"
 

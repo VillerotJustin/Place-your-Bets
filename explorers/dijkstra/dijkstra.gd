@@ -248,7 +248,7 @@ func _update_speed_for_current_tile() -> void:
 	# Get tile difficulty
 	var tile_difficulty = lab_gen.tile_labyrinth[grid_pos.y][grid_pos.x]
 	
-	# Adjust speed based on difficulty
+	# Adjust speed based on difficulty dijkstra has default mouvmement
 	match tile_difficulty:
 		0:  # Easy passage
 			current_speed = default_speed

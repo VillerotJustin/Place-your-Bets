@@ -18,6 +18,7 @@ class_name Labyrinth_Generator
 @export_range(0.1, 0.5, 0.05) var difficulty_path_percentage:float = 0.2  # % of passages to make harder
 @export var min_difficulty:int = 2
 @export var max_difficulty:int = 5
+@export_range(0.1, 0.9, 0.1) var low_difficulty_bias:float = 0.7  # Probability of getting min_difficulty vs max_difficulty
 
 @onready var number_of_cells: int = width * height
 #TODO decide on method
@@ -85,8 +86,6 @@ func generate_lab() -> void:
 	place_tiles()
 
 	place_explorers()
-
-	build_graph()
 
 # ====================================================================
 # UTILS
@@ -219,13 +218,9 @@ func add_random_difficulty_paths() -> void:
 		var selected_tile = passage_tiles[random_index]
 		passage_tiles.remove_at(random_index)
 		
-		# Assign random difficulty between min and max
-		var difficulty = randi_range(min_difficulty, max_difficulty)
-
-		# Make difficulty either 2 or 5 for more contrast
-		if difficulty < (min_difficulty + max_difficulty) / 2:
-			difficulty = min_difficulty
-		else:
+		# Assign difficulty based on bias setting
+		var difficulty = min_difficulty
+		if randf() > low_difficulty_bias:
 			difficulty = max_difficulty
 		
 		tile_labyrinth[selected_tile.y][selected_tile.x] = difficulty
@@ -249,12 +244,10 @@ func create_difficulty_clusters() -> void:
 			continue
 			
 		var cluster_size = randi_range(2, 5)  # Cluster radius
-		var difficulty = randi_range(min_difficulty, max_difficulty)
-
-		# Make difficulty either 2 or 5 for more contrast
-		if difficulty < (min_difficulty + max_difficulty) / 2:
-			difficulty = min_difficulty
-		else:
+		
+		# Assign difficulty based on bias setting
+		var difficulty = min_difficulty
+		if randf() > low_difficulty_bias:
 			difficulty = max_difficulty
 		
 		# Apply difficulty to nearby tiles
