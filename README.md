@@ -170,4 +170,8 @@ Want to learn more about the algorithms featured in this project?
 - [Dijkstra's Algorithm - Wikipedia](https://en.wikipedia.org/wiki/Dijkstra%27s_algorithm)
 - [Maze Generation Algorithms](https://en.wikipedia.org/wiki/Maze_generation_algorithm)
 
+## Youtube Video
+
+- <https://youtu.be/duGu-646gQQ>
+
 ---
