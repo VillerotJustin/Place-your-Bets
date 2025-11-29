@@ -62,8 +62,8 @@ This project demonstrates:
 1. **Clone the repository**:
 
    ```bash
-   git clone https://github.com/VillerotJustin/Place-your--Bets.git
-   cd Place-your--Bets
+   git clone https://github.com/VillerotJustin/Place-your-Bets.git
+   cd Place-your-Bets
    ```
 
 2. **Open in Godot**:
