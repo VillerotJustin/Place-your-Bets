@@ -32,7 +32,7 @@ Watch as A* and Dijkstra algorithms race to find the optimal path through random
   - 1 point for faster path traversal
 - **Payouts**: 2:1 on wins, lose your bet on losses, ties return your bet
 
-### 🎨 Visual Polish
+### 🎨 Visual Polish (Bare minimum)
 
 - **Aseprite pixel art** for maze tiles and characters
 - **Real-time HUD** showing:
@@ -46,7 +46,6 @@ Watch as A* and Dijkstra algorithms race to find the optimal path through random
 This project demonstrates:
 
 - **Algorithm Performance Comparison**: See how different algorithms perform under various conditions
-- **Pathfinding Concepts**: Visualize how A* uses heuristics vs Dijkstra's exhaustive search
 - **Terrain Cost Impact**: Understand how movement costs affect pathfinding decisions
 - **Time vs Space Complexity**: Observe real-world performance differences
 
